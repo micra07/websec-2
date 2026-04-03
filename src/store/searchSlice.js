@@ -1,19 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getTodayDate } from '../utils/format';
+import api from '../api/Api';
 
 export const searchRoute = createAsyncThunk(
   'search/searchRoute',
   async ({ from, to, date }) => {
-    const params = new URLSearchParams({
-      from,
-      to,
-      transport_types: 'suburban'
-    });
-    if (date) params.append('date', date);
-
-    const response = await fetch(`/api/search?${params}`);
-    if (!response.ok) throw new Error('Не удалось найти маршрут');
-    return await response.json();
+    return await api.searchRoute(from, to, date);
   }
 );
 

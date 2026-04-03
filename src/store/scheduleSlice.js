@@ -1,19 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getTodayDate } from '../utils/format';
+import api from '../api/Api';
 
 export const fetchSchedule = createAsyncThunk(
   'schedule/fetchSchedule',
   async ({ stationCode, date, direction }) => {
-    const params = new URLSearchParams({
-      station: stationCode,
-      transport_types: 'suburban'
-    });
-    if (date) params.append('date', date);
-    if (direction && direction !== 'all') params.append('direction', direction);
-
-    const response = await fetch(`/api/schedule?${params}`);
-    if (!response.ok) throw new Error('Не удалось загрузить расписание');
-    return await response.json();
+    return await api.getSchedule(stationCode, date, direction);
   }
 );
 

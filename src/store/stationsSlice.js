@@ -1,12 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api from '../api/Api';
 
 export const fetchStations = createAsyncThunk(
   'stations/fetchStations',
   async (query = '') => {
-    const params = query ? `?query=${encodeURIComponent(query)}` : '';
-    const response = await fetch(`/api/stations${params}`);
-    if (!response.ok) throw new Error('Не удалось загрузить список станций');
-    const data = await response.json();
+    const data = await api.getStations(query);
     return data.stations;
   }
 );

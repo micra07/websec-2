@@ -42,10 +42,7 @@ async function main() {
     `  { code: "${s.code}", title: "${s.title}", lat: ${s.lat}, lng: ${s.lng} }`
   );
 
-  const output = `export const stations = [
-${lines.join(',\n')}
-];
-`;
+  const output = `export const stations = [${lines.join(',\n')}];`;
 
   const outPath = path.join(__dirname, 'stations-data.js');
   fs.writeFileSync(outPath, output, 'utf-8');

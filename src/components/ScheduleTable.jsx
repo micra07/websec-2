@@ -27,7 +27,7 @@ export default function ScheduleTable({ segments, loading, error }) {
     });
   }, [segments]);
 
-  if (loading) {
+  const renderLoading = () => {
     return (
       <div className="schedule-loading">
         <div className="loading-train">
@@ -41,9 +41,9 @@ export default function ScheduleTable({ segments, loading, error }) {
         </div>
       </div>
     );
-  }
+  };
 
-  if (error) {
+  const renderError = () => {
     return (
       <div className="schedule-error">
         <i className="bi bi-exclamation-triangle-fill"></i>
@@ -51,9 +51,9 @@ export default function ScheduleTable({ segments, loading, error }) {
         <small>{error}</small>
       </div>
     );
-  }
+  };
 
-  if (!sortedSegments.length) {
+  const renderEmpty = () => {
     return (
       <div className="schedule-empty">
         <i className="bi bi-calendar-x"></i>
@@ -61,77 +61,90 @@ export default function ScheduleTable({ segments, loading, error }) {
         <small>Попробуйте выбрать другую дату</small>
       </div>
     );
-  }
+  };
 
-  return (
-    <div className="schedule-table-wrapper">
-      <table className="schedule-table desktop-only">
-        <thead>
-          <tr>
-            <th>Поезд</th>
-            <th>Маршрут</th>
-            <th>Прибытие</th>
-            <th>Отправление</th>
-            <th>Статус</th>
-          </tr>
-        </thead>
-        <tbody>
+  const renderContent = () => {
+    return (
+      <div className="schedule-table-wrapper">
+        <table className="schedule-table desktop-only">
+          <thead>
+            <tr>
+              <th>Поезд</th>
+              <th>Маршрут</th>
+              <th>Прибытие</th>
+              <th>Отправление</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedSegments.map((seg, idx) => {
+              const thread = seg.thread || {};
+              return (
+                <tr key={idx} className="schedule-row">
+                  <td>
+                    <div className="train-number">
+                      <i className="bi bi-train-front"></i>
+                      <span>{thread.number || '—'}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="train-route">
+                      {thread.title || `${thread.short_title || '—'}`}
+                    </div>
+                  </td>
+                  <td className="time-cell">{formatTime(seg.arrival)}</td>
+                  <td className="time-cell">{formatTime(seg.departure)}</td>
+                  <td>{getStatusBadge(seg.departure)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        <div className="schedule-cards mobile-only">
           {sortedSegments.map((seg, idx) => {
             const thread = seg.thread || {};
             return (
-              <tr key={idx} className="schedule-row">
-                <td>
-                  <div className="train-number">
+              <div key={idx} className="schedule-card">
+                <div className="card-header-row">
+                  <div className="train-info">
                     <i className="bi bi-train-front"></i>
-                    <span>{thread.number || '—'}</span>
+                    <span className="train-num">{thread.number || '—'}</span>
                   </div>
-                </td>
-                <td>
-                  <div className="train-route">
-                    {thread.title || `${thread.short_title || '—'}`}
+                  {getStatusBadge(seg.departure)}
+                </div>
+                <div className="card-route">
+                  {thread.title || thread.short_title || '—'}
+                </div>
+                <div className="card-times">
+                  <div className="time-block">
+                    <span className="time-label">Приб.</span>
+                    <span className="time-value">{formatTime(seg.arrival)}</span>
                   </div>
-                </td>
-                <td className="time-cell">{formatTime(seg.arrival)}</td>
-                <td className="time-cell">{formatTime(seg.departure)}</td>
-                <td>{getStatusBadge(seg.departure)}</td>
-              </tr>
+                  <div className="time-separator">
+                    <i className="bi bi-arrow-right"></i>
+                  </div>
+                  <div className="time-block">
+                    <span className="time-label">Отпр.</span>
+                    <span className="time-value">{formatTime(seg.departure)}</span>
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </tbody>
-      </table>
-
-      <div className="schedule-cards mobile-only">
-        {sortedSegments.map((seg, idx) => {
-          const thread = seg.thread || {};
-          return (
-            <div key={idx} className="schedule-card">
-              <div className="card-header-row">
-                <div className="train-info">
-                  <i className="bi bi-train-front"></i>
-                  <span className="train-num">{thread.number || '—'}</span>
-                </div>
-                {getStatusBadge(seg.departure)}
-              </div>
-              <div className="card-route">
-                {thread.title || thread.short_title || '—'}
-              </div>
-              <div className="card-times">
-                <div className="time-block">
-                  <span className="time-label">Приб.</span>
-                  <span className="time-value">{formatTime(seg.arrival)}</span>
-                </div>
-                <div className="time-separator">
-                  <i className="bi bi-arrow-right"></i>
-                </div>
-                <div className="time-block">
-                  <span className="time-label">Отпр.</span>
-                  <span className="time-value">{formatTime(seg.departure)}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  return <>
+    {loading
+      ? renderLoading()
+      : error
+        ? renderError()
+        : !sortedSegments.length
+          ? renderEmpty()
+          : renderContent()
+    }
+  </>;
 }
